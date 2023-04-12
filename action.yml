@@ -1,0 +1,83 @@
+name: 'verible-indexing-action'
+description: 'This action indexes Verilog/SystemVerilog code'
+author: 'Antmicro'
+
+inputs:
+  repository_name:
+    description: 'Name of the repository, which is meant to be indexed'
+    required: true
+    default: 'verible-indexing-action'
+  repository_url:
+    description: 'URL of the repository, e.g. http://www.github.com/repository_name'
+    required: true
+    default: 'https://github.com/antmicro/verible-indexing-action'
+  repository_branch:
+    description: 'Branch of the repository'
+    required: true
+    default: 'main'
+  repository_revision:
+    description: 'Revision'
+    required: true
+    default: 'HEAD'
+  # github_token:
+  #   description: 'GITHUB_TOKEN'
+  #   default: ''
+  debug-artifacts:
+    description: 'Upload artifacts useful for debugging [true|false] (default=false)'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'composite'
+  steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt install curl gnupg
+        curl -fsSL https://bazel.build/bazel-release.pub.gpg | gpg --dearmor > bazel.gpg
+        sudo mv bazel.gpg /etc/apt/trusted.gpg.d/
+        echo "deb [arch=amd64] https://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
+        sudo apt update
+        sudo apt install bazel-3.4.1 asciidoc graphviz source-highlight cpanminus
+        sudo cpanm Bit::Vector JSON
+
+    - name: Set environment variables
+      shell: bash
+      run: |
+        echo "REPOSITORY_NAME=${{ inputs.repository_name }}" >> $GITHUB_ENV
+        echo "REPOSITORY_URL=${{ inputs.repository_url }}" >> $GITHUB_ENV
+        echo "REPOSITORY_BRANCH=${{ inputs.repository_branch }}" >> $GITHUB_ENV
+        echo "REPOSITORY_REV=${{ inputs.repository_revision }}" >> $GITHUB_ENV
+
+    - name: Fetch
+      shell: bash
+      run: ${{ github.action_path }}/fetch.sh
+
+    - name: Build
+      shell: bash
+      run: ${{ github.action_path }}/build.sh
+
+    # Required to preserve file permissions
+    - name: Create .tar archive with core artifacts
+      shell: bash
+      run: tar -cf ../../server-files-${{ inputs.repository_name }}.tar *
+      working-directory: _build/output/${{ inputs.repository_name }}/artifacts
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: server-files
+        path: _build/output/server-files-${{ inputs.repository_name }}*.tar
+
+    - name: Upload debug artifacts
+      if: always() && github.event.inputs.debug-artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: debug-files
+        path: |
+          _build/output/entries
+          _build/${{ inputs.repository_name }}/file_list.*.txt
