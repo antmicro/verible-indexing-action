@@ -11,7 +11,7 @@ SELF_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
 KYTHE_VERSION='v0.0.48'
 KYTHE_URL="https://github.com/kythe/kythe/releases/download/$KYTHE_VERSION/kythe-$KYTHE_VERSION.tar.gz"
 
-begin_command_group 'Get Kythe'
+begin_command_group 'Get Kythe binary'
 	wget --no-verbose -O kythe.tar.gz "$KYTHE_URL"
 	rm -rf kythe-bin
 	mkdir kythe-bin
@@ -19,22 +19,14 @@ begin_command_group 'Get Kythe'
 end_command_group
 
 #─────────────────────────────────────────────────────────────────────────────
-# Get Kythe sources.
+# Get Verible binaries
 
-KYTHE_SRC_URL="https://github.com/kythe/kythe/archive/$KYTHE_VERSION.zip"
+VERIBLE_URL="https://github.com/chipsalliance/verible/releases/download/v0.0-3195-gd05930a0/verible-v0.0-3195-gd05930a0-Ubuntu-22.04-jammy-x86_64.tar.gz"
 
-begin_command_group 'Get Kythe sources'
-	wget --no-verbose -O kythe-src.zip "$KYTHE_SRC_URL"
-	rm -rf kythe-src
-	mkdir kythe-src
-	unzip -q kythe-src.zip -d ./kythe-src
-end_command_group
-
-#─────────────────────────────────────────────────────────────────────────────
-# Get Verible sources
-
-begin_command_group 'Get Verible sources'
-	git clone https://github.com/chipsalliance/verible.git
+begin_command_group 'Get Verible binary'
+	wget --no-verbose -O verible-bin.tar.gz $VERIBLE_URL
+	mkdir -p verible-bin
+	tar -xzf verible-bin.tar.gz --strip-components=1 -C verible-bin
 end_command_group
 
 #─────────────────────────────────────────────────────────────────────────────
@@ -53,4 +45,3 @@ begin_command_group 'Get core sources'
 	fi
 	popd
 end_command_group
-

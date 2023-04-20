@@ -6,28 +6,12 @@ SELF_DIR="$(dirname $(readlink -f ${BASH_SOURCE[0]}))"
 . $SELF_DIR/common.inc.sh
 
 STATIC_DIR=$(readlink -f "$SELF_DIR/static")
-BAZEL_ROOT="$(readlink -f "$OUT_DIR/bazel_cache")"
-mkdir -p "$BAZEL_ROOT"
-
 KYTHE_DIR="$(readlink -f kythe-bin)"
-KYTHE_SRC_DIR="$(readlink -f ./kythe-src/kythe*/)"
-BAZEL="bazel --output_user_root=$BAZEL_ROOT"
-
-#━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-# Build verible-verilog-kythe-extractor
-
-begin_command_group 'Build verible-verilog-kythe-extractor'
-	cd verible
-	$BAZEL clean
-	$BAZEL build //verilog/tools/kythe:verible-verilog-kythe-extractor
-	cd - > /dev/null
-end_command_group
-
-VERIBLE_VERILOG_KYTHE_EXTRACTOR="$(readlink -f "./verible/bazel-bin/verilog/tools/kythe/verible-verilog-kythe-extractor")"
+VERIBLE_DIR="$(readlink -f verible-bin)"
+VERIBLE_VERILOG_KYTHE_EXTRACTOR="$VERIBLE_DIR/bin/verible-verilog-kythe-extractor"
 
 #─────────────────────────────────────────────────────────────────────────────
 # Scan and index core sources
-
 
 function log_indexer_warnings() {
 	if [[ -n "${GITHUB_WORKFLOW:-}" ]]; then
@@ -82,19 +66,11 @@ begin_command_group 'Create tables'
 end_command_group
 
 #─────────────────────────────────────────────────────────────────────────────
-# Build static http_server
+# Use static http_server from binaries
 
-begin_command_group 'Build Kythe http_server'
-	cd $KYTHE_SRC_DIR
-	$BAZEL build \
-			-c opt \
-			--@io_bazel_rules_go//go/config:static \
-			//kythe/go/serving/tools:http_server
-
+begin_command_group 'Extract http_server from the binary release '
 	mkdir -p $ARTIFACTS_DIR/bin
-	cp ./bazel-bin/kythe/go/serving/tools/http_server/http_server $ARTIFACTS_DIR/bin/
-
-	cd - > /dev/null
+	cp $KYTHE_DIR/tools/http_server $ARTIFACTS_DIR/bin/
 end_command_group
 
 #─────────────────────────────────────────────────────────────────────────────
@@ -103,4 +79,3 @@ end_command_group
 begin_command_group 'Copy static files'
 	cp -R $STATIC_DIR/* $ARTIFACTS_DIR/
 end_command_group
-
