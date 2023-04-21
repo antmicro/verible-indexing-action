@@ -50,14 +50,23 @@ runs:
     # Required to preserve file permissions
     - name: Create .tar archive with core artifacts
       shell: bash
-      run: tar -cf ../../server-files-${{ inputs.repository_name }}.tar *
-      working-directory: _build/output/${{ inputs.repository_name }}/artifacts
+      run: |
+        tar -cf ${{ github.workspace }}/server-files-${{ inputs.repository_name }}.tar *
+      working-directory: ${{ github.action_path }}/_build/output/${{ inputs.repository_name }}/artifacts
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
         name: server-files
-        path: _build/output/server-files-${{ inputs.repository_name }}*.tar
+        path: ${{ github.workspace }}/server-files-${{ inputs.repository_name }}.tar
+
+    - name: Copy debug files
+      if: always() && github.event.inputs.debug-artifacts
+      shell: bash
+      run: |
+        mkdir ${{ github.workspace }}/_debug
+        cp ${{ github.action_path }}/_build/output/entries ${{ github.workspace }}/_debug
+        cp ${{ github.action_path }}/_build/${{ inputs.repository_name }}/file_list.*.txt ${{ github.workspace }}/_debug
 
     - name: Upload debug artifacts
       if: always() && github.event.inputs.debug-artifacts
@@ -65,5 +74,4 @@ runs:
       with:
         name: debug-files
         path: |
-          _build/output/entries
-          _build/${{ inputs.repository_name }}/file_list.*.txt
+          ${{ github.workspace }}/_debug
