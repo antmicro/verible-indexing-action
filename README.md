@@ -25,7 +25,6 @@ In order to use this action create a workflow .yml with the following contents (
         - name: Index Action
         uses: antmicro/verible-indexing-action@main
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
             repository_name: name-of-your-repo
             repository_url: https://github.com/path/to/your/repo
             repository_branch: main
@@ -45,24 +44,15 @@ Furthermore, a script to run the http_server is provided. By default the http_se
     sudo run-kythe-server.sh
     sudo run-kythe-server.sh 127.0.0.1:88
 
-## Multiple sources support
-
-Example to index multiple repositories with matrix strategy
-
-	TBD
-
-
 ## Limitations
 
 Current limitations of the action include:
  - Indexing is limited to files that end with [.sv or .v extensions](https://github.com/antmicro/verible-indexing-action/blob/main/index_filelist_gen.py#L29-L31)
  - The webpage front-end is pre-built and not easily customizable
  - Kythe version is fixed to 0.0.48
- - Main branch of Verible is used
+ - Latest branch of Verible is used
 
 
 # Related projects
 
-Usage example and additional features (automatic scheduled updates, deployment strategy) may be found in related projects:
- - [Verible indexers](https://github.com/antmicro/verible-indexer)
- - [Ibex indexer](https://github.com/antmicro/verible-ibex-indexer)
+[Verible indexer](https://github.com/antmicro/verible-indexer) is a project, which provides automatic scheduled updates and docker image deployment for multiple repositories. Use link provided if you are interested in a workflow, which creates a dynamic matrix to index a list of cores.
