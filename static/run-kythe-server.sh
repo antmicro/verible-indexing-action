@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2023 Antmicro <https://www.antmicro.com>
+# Copyright (c) 2020 Antmicro <https://www.antmicro.com>
 
 set -e -u -o pipefail
 shopt -s nullglob
@@ -12,7 +12,7 @@ SERVER_BIN=$SELF_DIR/bin/http_server
 TABLES_DIR=$SELF_DIR/tables
 PUBLIC_DIR=$SELF_DIR/web-ui
 
-LISTEN="${1:-0.0.0.0:80}"
+LISTEN="${1:-0.0.0.0:8080}"
 
 $SERVER_BIN \
 	--serving_table "$TABLES_DIR" \
