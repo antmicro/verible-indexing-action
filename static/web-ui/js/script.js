@@ -1,12 +1,12 @@
 document.addEventListener(
   "readystatechange",
   () => {
-    const treeRoot = document.querySelector('[title="::"]');
-    if (treeRoot) {
-      setTimeout(() => {
+    setTimeout(() => {
+      const treeRoot = document.querySelector('[title="::"]');
+      if (treeRoot) {
         treeRoot.click();
-      }, 1000);
-    }
+      }
+    }, 1000);
 
     const container = document.querySelector("#container");
 

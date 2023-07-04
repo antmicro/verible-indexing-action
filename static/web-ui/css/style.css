@@ -110,6 +110,14 @@ pre {
   color: #00D0C9;
 }
 
+.nav>li>a[title$=".vh"] {
+  color: #00D0C9;
+}
+
+.nav>li>a[title$=".v"] {
+  color: #00D0C9;
+}
+
 .nav>li>a:focus {
   background-color: #8C8C8C;
 }
