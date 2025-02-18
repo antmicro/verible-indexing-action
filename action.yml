@@ -57,7 +57,7 @@ runs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: server-files
+        name: server-files-${{ inputs.repository_name }}
         path: ${{ github.workspace }}/server-files-${{ inputs.repository_name }}.tar
 
     - name: Copy debug files
@@ -72,6 +72,6 @@ runs:
       if: always() && github.event.inputs.debug-artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: debug-files
+        name: debug-files-${{ inputs.repository_name }}
         path: |
           ${{ github.workspace }}/_debug
